@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "TTS Server",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tts_server.py"],
+      "port": 8942
+    },
+    {
+      "name": "Frontend",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8080"],
+      "port": 8080
+    }
+  ]
+}

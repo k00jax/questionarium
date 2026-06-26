@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Questionarium</title>
+<style>
+:root { color-scheme: light; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
+  background-attachment: fixed;
+}
+.container { max-width: 750px; width: 100%; background: #ffffff; border-radius: 24px; box-shadow: 0 24px 80px rgba(0,0,0,.4); overflow: hidden; position: relative; }
+
+/* ── Header ── */
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px 28px; text-align: center; color: white; position: relative; }
+.mascot { font-size: 48px; display: inline-block; animation: float 3s ease-in-out infinite; cursor: pointer; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+.header .subtitle { font-size: 13px; opacity: .85; font-style: italic; margin-top: 2px; }
+.header-ra { position: absolute; top: 14px; right: 16px; padding: 5px 14px !important; font-size: 11px !important; }
+
+/* ── Player Bar ── */
+.player-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: #f8f9fa; border-bottom: 1px solid #e9ecef; font-size: 13px; flex-wrap: wrap; }
+.player-bar .p-avatar { font-size: 28px; }
+.player-bar .p-info { flex: 1; min-width: 120px; }
+.player-bar .p-name { font-weight: 700; color: #212529; }
+.player-bar .p-level { font-size: 11px; color: #764ba2; font-weight: 600; }
+.player-bar .xp-wrap { width: 120px; }
+.player-bar .xp-label { font-size: 10px; color: #adb5bd; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.player-bar .xp-bar-outer { height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; }
+.player-bar .xp-bar-inner { height: 100%; background: linear-gradient(90deg,#f093fb,#f5576c); border-radius: 3px; transition: width .6s; }
+.player-bar .badge-count { font-size: 11px; color: #6c757d; white-space: nowrap; }
+.player-bar .btn-sm { font-size: 11px; padding: 4px 10px; border-radius: 8px; border: 1px solid #dee2e6; background: white; cursor: pointer; color: #6c757d; font-family: inherit; }
+.player-bar .btn-sm:hover { background: #f1f3f5; }
+.readaloud-toggle { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; border: 2px solid #dee2e6; background: white; cursor: pointer; font-size: 12px; font-weight: 700; font-family: inherit; color: #6c757d; transition: all .3s; white-space: nowrap; }
+.readaloud-toggle.active { background: #f3f0ff; border-color: #764ba2; color: #764ba2; animation: pulseBorder 2s infinite; }
+.readaloud-toggle .ra-icon { font-size: 16px; }
+@keyframes pulseBorder { 0%,100%{box-shadow:0 0 0 0 rgba(118,75,162,.3)} 50%{box-shadow:0 0 0 8px rgba(118,75,162,0)} }
+.readaloud-indicator { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#667eea,#764ba2); color: white; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 100; pointer-events: none; animation: raFadeIn .4s ease-out; }
+@keyframes raFadeIn { 0%{opacity:0;transform:translateX(-50%) translateY(-10px)} 100%{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+/* ── Card Area ── */
+.card-area { padding: 32px; min-height: 280px; position: relative; }
+
+/* ── Welcome Screen ── */
+.welcome { text-align: center; }
+.welcome h2 { font-size: 22px; color: #212529; margin-bottom: 6px; }
+.welcome .welcome-sub { font-size: 14px; color: #6c757d; margin-bottom: 24px; }
+.welcome .input-group { margin-bottom: 24px; }
+.welcome label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #764ba2; font-weight: 700; margin-bottom: 8px; }
+.welcome input[type=text] {
+  width: 100%; max-width: 320px; padding: 12px 16px; border: 2px solid #e9ecef; border-radius: 12px;
+  font-size: 16px; font-family: inherit; text-align: center; outline: none; transition: border-color .2s;
+}
+.welcome input[type=text]:focus { border-color: #764ba2; }
+.avatar-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 28px; }
+.avatar-option { width: 64px; height: 64px; border-radius: 16px; border: 3px solid #e9ecef; background: #f8f9fa; font-size: 32px; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; position: relative; }
+.avatar-option:hover { border-color: #764ba2; transform: scale(1.08); background: #f3f0ff; }
+.avatar-option.selected { border-color: #764ba2; background: #f3f0ff; box-shadow: 0 0 0 4px rgba(118,75,162,.15); }
+.avatar-option .avatar-label { position: absolute; bottom: -18px; font-size: 10px; color: #6c757d; white-space: nowrap; }
+.btn-primary { padding: 14px 40px; background: linear-gradient(135deg,#667eea,#764ba2); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .2s; }
+.btn-primary:hover { transform: scale(1.04); box-shadow: 0 6px 20px rgba(118,75,162,.3); }
+.btn-primary:disabled { opacity: .5; transform: none; cursor: not-allowed; box-shadow: none; }
+.btn-secondary { padding: 12px 28px; background: white; color: #764ba2; border: 2px solid #764ba2; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .2s; }
+.btn-secondary:hover { background: #f3f0ff; }
+.load-save-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+/* ── Realm Map ── */
+.realm-map { text-align: center; }
+.realm-map h3 { font-size: 18px; color: #212529; margin-bottom: 4px; }
+.realm-map .map-sub { font-size: 13px; color: #6c757d; margin-bottom: 20px; }
+.realm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.realm-card { padding: 16px; border-radius: 14px; border: 2px solid #e9ecef; background: white; cursor: pointer; transition: all .2s; text-align: left; position: relative; overflow: hidden; }
+.realm-card:hover:not(.locked) { border-color: #764ba2; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+.realm-card.locked { opacity: .45; cursor: not-allowed; filter: grayscale(.3); }
+.realm-card.completed { border-color: #51cf66; background: #f6fff6; }
+.realm-card .realm-icon { font-size: 28px; margin-bottom: 4px; }
+.realm-card .realm-name { font-weight: 700; font-size: 14px; color: #212529; }
+.realm-card .realm-count { font-size: 11px; color: #adb5bd; }
+.realm-card .realm-check { position: absolute; top: 8px; right: 10px; font-size: 18px; }
+.realm-card .realm-lock { position: absolute; top: 10px; right: 12px; font-size: 14px; }
+.map-footer { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+/* ── Question Screen ── */
+.realm-banner { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #764ba2; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.realm-banner .banner-icon { font-size: 20px; }
+.question-text { font-size: 19px; line-height: 1.5; color: #212529; font-weight: 700; margin-bottom: 20px; padding: 14px 18px; background: #f8f9fa; border-radius: 12px; cursor: pointer; transition: background .2s; }
+.question-text:hover { background: #e9ecef; }
+.question-text .speaker-hint { font-size: 10px; color: #adb5bd; margin-top: 4px; font-weight: 400; }
+.answers { display: flex; flex-direction: column; gap: 8px; }
+.answer-btn { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 2px solid #e9ecef; border-radius: 14px; background: white; cursor: pointer; font-size: 14px; line-height: 1.4; color: #495057; transition: all .2s; text-align: left; font-family: inherit; }
+.answer-btn:hover { border-color: #764ba2; background: #f8f0ff; transform: translateX(4px); }
+.answer-btn:active { transform: translateX(2px) scale(.98); }
+.answer-letter { width: 30px; height: 30px; border-radius: 10px; background: linear-gradient(135deg,#667eea,#764ba2); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+.answer-text { flex: 1; }
+.answer-speaker { font-size: 16px; cursor: pointer; padding: 4px; border-radius: 8px; background: none; border: none; opacity: .4; flex-shrink: 0; transition: opacity .2s; }
+.answer-speaker:hover { opacity: 1; }
+
+/* ── Reaction ── */
+.reaction-card { text-align: center; padding: 16px 12px; animation: popIn .4s cubic-bezier(.175,.885,.32,1.275); }
+@keyframes popIn { 0%{transform:scale(.9);opacity:0} 100%{transform:scale(1);opacity:1} }
+.reaction-emoji { font-size: 60px; margin-bottom: 8px; }
+.reaction-title { font-size: 20px; font-weight: 800; color: #212529; margin-bottom: 6px; }
+.reaction-msg { font-size: 14px; color: #6c757d; line-height: 1.5; margin-bottom: 12px; cursor: pointer; padding: 8px 12px; background: #f8f9fa; border-radius: 10px; display: inline-block; }
+.reaction-thought { font-size: 13px; color: #764ba2; font-style: italic; margin-bottom: 16px; line-height: 1.5; cursor: pointer; padding: 6px 12px; display: inline-block; }
+.xp-gain { font-size: 14px; font-weight: 700; color: #f5576c; margin-bottom: 12px; animation: floatUp .6s ease-out; }
+@keyframes floatUp { 0%{transform:translateY(10px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+
+/* ── Realm Complete ── */
+.realm-complete { text-align: center; }
+.realm-complete .rc-icon { font-size: 56px; margin-bottom: 8px; }
+.realm-complete h3 { font-size: 20px; color: #212529; margin-bottom: 4px; }
+.realm-complete .rc-stats { font-size: 13px; color: #6c757d; margin-bottom: 16px; }
+.badge-unlock { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: linear-gradient(135deg,#fff3bf,#ffd43b); border-radius: 14px; font-weight: 700; font-size: 14px; color: #664d00; margin: 8px 0; animation: popIn .5s cubic-bezier(.175,.885,.32,1.275); }
+
+/* ── Final Screen ── */
+.final-card { text-align: center; padding: 24px 16px; }
+.final-emoji { font-size: 72px; margin-bottom: 12px; animation: float 2s ease-in-out infinite; }
+.final-title { font-size: 26px; font-weight: 800; color: #212529; margin-bottom: 8px; }
+.final-msg { font-size: 15px; color: #6c757d; line-height: 1.6; margin-bottom: 20px; max-width: 480px; margin-left: auto; margin-right: auto; }
+.final-stats { display: flex; justify-content: center; gap: 28px; margin-bottom: 20px; flex-wrap: wrap; }
+.final-stat { text-align: center; min-width: 70px; }
+.final-stat-val { font-size: 32px; font-weight: 800; background: linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.final-stat-label { font-size: 11px; color: #adb5bd; text-transform: uppercase; letter-spacing: 1px; }
+.badge-gallery { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+.badge-chip { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge-chip.earned { background: #fff3bf; color: #664d00; }
+.badge-chip.locked { background: #e9ecef; color: #adb5bd; opacity: .6; }
+
+/* ── Toast ── */
+.toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.toast { padding: 12px 24px; border-radius: 14px; font-weight: 700; font-size: 14px; animation: toastIn .4s ease-out, toastOut .4s 2.2s ease-in forwards; box-shadow: 0 8px 30px rgba(0,0,0,.2); pointer-events: auto; }
+.toast.levelup { background: linear-gradient(135deg,#667eea,#764ba2); color: white; }
+.toast.badge { background: linear-gradient(135deg,#ffd43b,#fab005); color: #664d00; }
+.toast.info { background: #212529; color: white; }
+@keyframes toastIn { 0%{transform:translateY(-20px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+@keyframes toastOut { 0%{opacity:1} 100%{opacity:0;transform:translateY(-10px)} }
+
+/* ── Confetti ── */
+.confetti-piece { position: fixed; z-index: 1000; pointer-events: none; animation: confettiFall 2.5s ease-in forwards; }
+@keyframes confettiFall { 0%{transform:translateY(-10vh) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ── Skip ── */
+.skip-area { text-align: center; padding-bottom: 16px; }
+.skip-btn { background: none; border: none; color: #adb5bd; font-size: 12px; cursor: pointer; font-family: inherit; padding: 6px 14px; }
+.skip-btn:hover { color: #6c757d; }
+
+/* ── Responsive ── */
+@media(max-width:500px){
+  .container{border-radius:16px} .header{padding:16px} .header h1{font-size:20px}
+  .question-text{font-size:16px} .card-area{padding:20px} .player-bar{padding:10px 16px;font-size:11px;gap:8px}
+  .answer-btn{font-size:13px;padding:10px 12px} .realm-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="mascot" id="headerMascot">🦉</div>
+    <h1>The Questionarium</h1>
+    <div class="subtitle">Where wondering is the whole point</div>
+    <button class="readaloud-toggle header-ra" id="raToggle" onclick="toggleReadAloud()" title="Read-aloud mode: hover over buttons to hear them (or press R)">
+      <span class="ra-icon">🔇</span> Read Aloud
+    </button>
+  </div>
+  <div class="player-bar" id="playerBar" style="display:none">
+    <span class="p-avatar" id="pAvatar"></span>
+    <div class="p-info"><div class="p-name" id="pName"></div><div class="p-level" id="pLevel"></div></div>
+    <div class="xp-wrap"><div class="xp-label">XP</div><div class="xp-bar-outer"><div class="xp-bar-inner" id="xpBar"></div></div></div>
+    <span class="badge-count" id="badgeCount"></span>
+    <button class="btn-sm" onclick="saveAndQuit()" title="Save & go to map">🗺️ Map</button>
+    <button class="btn-sm" onclick="saveGame();showToast('💾 Game saved!','info')">💾 Save</button>
+  </div>
+  <div class="card-area" id="cardArea"></div>
+  <div class="skip-area" id="skipArea"><button class="skip-btn" onclick="skipQuestion()">Skip →</button></div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// GAME DATA
+// ══════════════════════════════════════════════════════════════════════════════
+
+const AVATARS = [
+  {emoji:"🦉", name:"Owlis", desc:"The Wise Guide"},
+  {emoji:"🦊", name:"Fennex", desc:"The Clever Trickster"},
+  {emoji:"🐱", name:"Whiskers", desc:"The Curious Explorer"},
+  {emoji:"🐉", name:"Ember", desc:"The Brave Heart"},
+  {emoji:"🤖", name:"Byte", desc:"The Logic Master"},
+  {emoji:"🦄", name:"Sparkle", desc:"The Dream Weaver"},
+  {emoji:"🐼", name:"Bumble", desc:"The Kind Soul"},
+  {emoji:"🐙", name:"Inky", desc:"The Deep Thinker"},
+];
+
+const LEVELS = [
+  {level:1, name:"Curious Newcomer", xp:0},
+  {level:2, name:"Question Asker", xp:60},
+  {level:3, name:"Thought Explorer", xp:140},
+  {level:4, name:"Wonder Wanderer", xp:260},
+  {level:5, name:"Idea Adventurer", xp:420},
+  {level:6, name:"Mind Mapper", xp:620},
+  {level:7, name:"Deep Diver", xp:860},
+  {level:8, name:"Wisdom Seeker", xp:1140},
+  {level:9, name:"Philosophy Friend", xp:1460},
+  {level:10, name:"Wonder Champion", xp:1820},
+];
+
+const BADGES = [
+  {id:"first_step", icon:"🌟", name:"First Wonder", desc:"Answer your first question", check:(gs)=>gs.questionsAnswered>=1},
+  {id:"seeker", icon:"🔍", name:"Seeker", desc:"Answer 5 questions", check:(gs)=>gs.questionsAnswered>=5},
+  {id:"deep_thinker", icon:"🧠", name:"Deep Thinker", desc:"Answer 15 questions", check:(gs)=>gs.questionsAnswered>=15},
+  {id:"philosopher", icon:"🏛️", name:"Philosopher", desc:"Answer 25 questions", check:(gs)=>gs.questionsAnswered>=25},
+  {id:"completionist", icon:"🏆", name:"Completionist", desc:"Answer all questions", check:(gs)=>gs.questionsAnswered>=ALL_QUESTIONS.length},
+  {id:"realm_walker", icon:"🌍", name:"Realm Walker", desc:"Complete your first realm", check:(gs)=>Object.values(gs.realmProgress).some(v=>v>=realmQuestionCount(v))},
+  {id:"cartographer", icon:"🗺️", name:"Cartographer", desc:"Complete ALL 12 realms", check:(gs)=>Object.keys(gs.realmProgress).length===12&&Object.values(gs.realmProgress).every(v=>v>=realmQuestionCount(v))},
+  {id:"heart_of_gold", icon:"💛", name:"Heart of Gold", desc:"Choose kind/compassionate answers 8+ times", check:(gs)=>gs.kindAnswers>=8},
+  {id:"rebel", icon:"🎨", name:"Creative Spirit", desc:"Choose unconventional answers 8+ times", check:(gs)=>gs.rebelAnswers>=8},
+  {id:"night_owl", icon:"🦉", name:"Night Owl", desc:"Play a question late at night or early morning", check:(gs)=>{const h=new Date().getHours();return h>=22||h<5;}},
+  {id:"speed_of_thought", icon:"⚡", name:"Speed of Thought", desc:"Answer 3 questions quickly in one session", check:(gs)=>gs.fastAnswers>=3},
+  {id:"wonder_champion", icon:"👑", name:"Wonder Champion", desc:"Earn 8+ badges", check:(gs)=>gs.earnedBadges.length>=8},
+];
+
+const REALMS = [
+  {id:"fairness", name:"Fairness Frontier", icon:"⚖️", color:"#667eea", required:0},
+  {id:"reality", name:"Reality Rift", icon:"🌌", color:"#764ba2", required:0},
+  {id:"happiness", name:"Happiness Hollow", icon:"🌈", color:"#f5576c", required:1},
+  {id:"friendship", name:"Friendship Forest", icon:"🌳", color:"#51cf66", required:0},
+  {id:"identity", name:"Identity Island", icon:"🏝️", color:"#ff922b", required:1},
+  {id:"secrets", name:"Secret Sanctuary", icon:"🔐", color:"#845ef7", required:1},
+  {id:"trust", name:"Trust Tower", icon:"🏰", color:"#339af0", required:2},
+  {id:"time", name:"Time Tangle", icon:"⏳", color:"#f06595", required:2},
+  {id:"nature", name:"Nature Nook", icon:"🌿", color:"#20c997", required:2},
+  {id:"dream", name:"Dream Depths", icon:"💤", color:"#7950f2", required:3},
+  {id:"courage", name:"Courage Canyon", icon:"⛰️", color:"#f59f00", required:3},
+  {id:"mystery", name:"Mystery Manor", icon:"🏚️", color:"#495057", required:3},
+];
+
+function realmQuestionCount(realmId) {
+  return SCENARIOS.filter(s=>s.realm===realmId).length;
+}
+
+const SCENARIOS = [
+  // ── FAIRNESS FRONTIER ──
+  {realm:"fairness", category:"FAIRNESS LAB",
+   question:"A wizard offers to make you THE BEST at everything... but everyone else becomes slightly worse at everything they do. Deal?",
+   answers:[
+     {letter:"A",text:"Take the deal! Being the best at everything sounds amazing.",reaction:"🌟",title:"The Champion",msg:"You know what you want and you go for it. That's powerful.",thought:"If everyone else got worse, would 'the best' still mean anything? Is being great only special because other people are great too?",kind:false,rebel:false},
+     {letter:"B",text:"No way. I don't want to make everyone else worse just so I can shine.",reaction:"💛",title:"The Big Heart",msg:"You care about other people, even strangers. That's a superpower all by itself.",thought:"Would it still be the right choice if one of those people was your best friend? What if it was someone you don't like?",kind:true,rebel:false},
+     {letter:"C",text:"Can I be the best at just ONE thing instead? Like, really good at making pizza?",reaction:"🍕",title:"The Negotiator",msg:"You found a third option! That's what philosophers do — question the question itself.",thought:"Why did the wizard only give two choices? In real life, are most choices really just A or B?",kind:false,rebel:true},
+     {letter:"D",text:"What does 'best' even MEAN if everyone else gets worse? That's not being best — it's just everyone else being worse.",reaction:"🔍",title:"The Word Detective",msg:"You looked at the words themselves before answering.",thought:"How many arguments happen because people mean different things by the same word? Fair. Best. Good. What do those even mean?",kind:false,rebel:true},
+   ]},
+  {realm:"fairness", category:"FAIRNESS LAB",
+   question:"A machine gives everyone in the world EXACTLY the same amount of everything — money, food, toys, everything. Is that fair?",
+   answers:[
+     {letter:"A",text:"Yes! Equal shares for everyone is the definition of fair.",reaction:"📏",title:"The Equalizer",msg:"You believe fair means everyone gets the same. That's clean and simple.",thought:"But what if someone works harder? What if someone NEEDS more? Is equal always fair?",kind:false,rebel:false},
+     {letter:"B",text:"No — people who work harder should get more. Equal isn't always fair.",reaction:"💪",title:"The Merit Believer",msg:"You believe effort should matter. That feels right to a lot of people.",thought:"But what about people who CAN'T work as hard? Is it their fault? What about people born with advantages?",kind:false,rebel:false},
+     {letter:"C",text:"Fair isn't everyone getting the SAME — it's everyone getting what they NEED.",reaction:"🤲",title:"The Need Seer",msg:"You distinguished between equality and equity. That's wisdom beyond your years.",thought:"Who decides what people 'need'? And what if what someone needs costs more than what someone else needs?",kind:true,rebel:false},
+     {letter:"D",text:"The machine should give EXTRA to people who share what they get with others.",reaction:"🔄",title:"The Generosity Engineer",msg:"You want to reward kindness. That's building fairness ON TOP of equality.",thought:"But then the machine is judging people's character. Is it okay for machines to make moral decisions?",kind:true,rebel:true},
+   ]},
+  {realm:"fairness", category:"FAIRNESS LAB",
+   question:"You can save ONLY ONE: a museum filled with priceless art from every culture, or a hospital with 100 patients inside. Which do you save?",
+   answers:[
+     {letter:"A",text:"The hospital. Human lives matter more than any object, no matter how beautiful.",reaction:"🏥",title:"The Life Guardian",msg:"You put human life above everything else. That's a powerful moral compass.",thought:"But what if the art inside represents the entire history and identity of a culture? Is culture worth less than individual lives?",kind:true,rebel:false},
+     {letter:"B",text:"The museum. Art preserves who we ARE. Without it, we forget ourselves.",reaction:"🎭",title:"The Culture Keeper",msg:"You believe identity and meaning matter as much as survival. That's a brave position.",thought:"Would the 100 patients agree? Can you make that choice FOR them?",kind:false,rebel:true},
+     {letter:"C",text:"I'd try to save BOTH — even if it's impossible. Some things you have to try anyway.",reaction:"🔥",title:"The Impossible Runner",msg:"You reject the either/or. Even when it's hopeless, you try.",thought:"Is there honor in trying the impossible, or is it foolish? What if trying to save both means saving neither?",kind:false,rebel:true},
+     {letter:"D",text:"I'd save whichever one I can reach FIRST and not look back.",reaction:"🏃",title:"The Decisive One",msg:"You know that sometimes making ANY choice is better than freezing.",thought:"Does it matter WHICH choice you make if you don't have time to think about it?",kind:false,rebel:false},
+   ]},
+
+  // ── REALITY RIFT ──
+  {realm:"reality", category:"REALITY CHECK",
+   question:"Your friend says they have an invisible pet dragon. It can breathe fire... but the fire is ALSO invisible. How would you figure out if the dragon is actually real?",
+   answers:[
+     {letter:"A",text:"Try to touch it! If I can feel it, it's real, even if I can't see it.",reaction:"🖐️",title:"The Hands-On Thinker",msg:"You trust what you can touch and feel. That's called empiricism!",thought:"But what about things you can't touch, like gravity or love or thoughts? Are those real?",kind:false,rebel:false},
+     {letter:"B",text:"Throw water on it! If there's an invisible dragon, the water would splash on SOMETHING.",reaction:"💦",title:"The Experiment Designer",msg:"You invented a test! That's what scientists do — look for evidence.",thought:"What if the dragon was also waterproof? How many tests before you'd decide it wasn't real?",kind:false,rebel:false},
+     {letter:"C",text:"If you can't prove it's NOT real... maybe it IS real? I believe my friend.",reaction:"🤝",title:"The Trust Builder",msg:"You chose to believe your friend. Trust is one of the most important things humans have.",thought:"But should we always believe people we trust? What if your friend truly believes the dragon is real — does that make it real?",kind:true,rebel:false},
+     {letter:"D",text:"What if the dragon only exists when someone is thinking about it? Like, it's real in our imagination?",reaction:"🌈",title:"The Dream Weaver",msg:"You're asking whether something can be real in one way but not another.",thought:"Is a story real? Is a dream real? Is a feeling real? Are there different kinds of real?",kind:false,rebel:true},
+   ]},
+  {realm:"reality", category:"REALITY CHECK",
+   question:"Everyone in the world suddenly believes the sky is green. They all point up and say 'look at that beautiful green sky.' You still see blue. Are they wrong?",
+   answers:[
+     {letter:"A",text:"They're wrong. The sky IS blue. Facts don't change just because people believe something else.",reaction:"📐",title:"The Fact Defender",msg:"You stand with truth even when you're the only one. That's courage.",thought:"But how do you KNOW your blue is the real blue? What if YOU'RE the one seeing it wrong?",kind:false,rebel:false},
+     {letter:"B",text:"Maybe the sky IS green now. If everyone sees it that way, who am I to say they're wrong?",reaction:"🤔",title:"The Consensus Seeker",msg:"You're willing to question your own eyes. That's humility.",thought:"But if truth is just what most people believe, was the Earth ever flat?",kind:false,rebel:false},
+     {letter:"C",text:"Maybe 'green' just MEANS 'that color up there' now. Words can change meaning.",reaction:"📖",title:"The Word Watcher",msg:"You realized the question might be about language, not reality.",thought:"If everyone used the word 'green' to mean blue, would they be wrong — or would the language have changed?",kind:false,rebel:true},
+     {letter:"D",text:"I'd investigate WHY everyone suddenly changed. Something weird is going on!",reaction:"🔎",title:"The Detective",msg:"You didn't answer — you asked a better question. WHY did this happen?",thought:"Sometimes the most important question isn't 'what is true?' but 'why do people believe what they believe?'",kind:false,rebel:true},
+   ]},
+  {realm:"reality", category:"REALITY CHECK",
+   question:"You dream an ENTIRE LIFETIME — growing up, making friends, falling in love, growing old. Then you wake up. Was any of it real?",
+   answers:[
+     {letter:"A",text:"No — it was just a dream. Dreams aren't real, even if they feel real at the time.",reaction:"⏰",title:"The Awake Realist",msg:"You draw a clear line between dreams and waking life. That's practical.",thought:"But the feelings you had in the dream WERE real feelings. The sadness when you woke up — that was real sadness.",kind:false,rebel:false},
+     {letter:"B",text:"Yes — it was real TO ME while it happened. That makes it real in the only way that matters.",reaction:"💭",title:"The Experience Keeper",msg:"You believe your own experience is what defines reality. That's powerful.",thought:"If something is only real to you, is it real at all? What's the difference between real and 'real to you'?",kind:false,rebel:true},
+     {letter:"C",text:"The PEOPLE in the dream weren't real, but what I LEARNED from the dream IS real.",reaction:"🎓",title:"The Lesson Taker",msg:"You found the real inside the unreal — the wisdom you gained.",thought:"Can something fake teach you something true? Can you learn real lessons from made-up stories?",kind:false,rebel:false},
+     {letter:"D",text:"What if THIS life is also a dream, and I haven't woken up yet?",reaction:"🌌",title:"The Deep Questioner",msg:"You turned the question inside out! Philosophers have been asking this for thousands of years.",thought:"How would you know if THIS was a dream? What test could you do to prove you're awake right now?",kind:false,rebel:true},
+   ]},
+
+  // ── HAPPINESS HOLLOW ──
+  {realm:"happiness", category:"HAPPINESS DILEMMA",
+   question:"If you could press a button that makes EVERYONE happy forever... but nobody could EVER change their mind about ANYTHING again. Would you press it?",
+   answers:[
+     {letter:"A",text:"Press it! Happy forever for everyone sounds like the best possible world.",reaction:"😊",title:"The Joy Maximizer",msg:"You want everyone to be happy. That's beautiful.",thought:"But if nobody can change their mind, how would we learn new things? Would we be stuck with whatever we believed on button-press day forever?",kind:true,rebel:false},
+     {letter:"B",text:"DON'T press it. Changing your mind is how you grow. Being stuck forever sounds like a prison.",reaction:"🌱",title:"The Growth Mind",msg:"You value freedom and growth over comfort. That's brave.",thought:"Is happiness worth anything if you didn't choose it? If a robot makes you smile by zapping your brain, is that real happiness?",kind:false,rebel:false},
+     {letter:"C",text:"Can I press it HALFWAY? Everybody gets a happiness boost but can still learn and grow?",reaction:"⚖️",title:"The Balance Finder",msg:"You want both! Happiness AND growth. You're looking for the middle path.",thought:"Are there things in life where you can't have both? Times when you have to choose between feeling good and doing the right thing?",kind:false,rebel:true},
+     {letter:"D",text:"Are people REALLY happy if they can't choose to be sad? Maybe you need sad to understand happy.",reaction:"🌓",title:"The Deep Diver",msg:"You asked whether happiness makes sense without sadness.",thought:"Can you know what warm means if you've never felt cold? What if ALL feelings need their opposite to make sense?",kind:false,rebel:true},
+   ]},
+  {realm:"happiness", category:"HAPPINESS DILEMMA",
+   question:"A pill makes you feel perfectly content — not euphoric, just... satisfied. With everything. Your life, your choices, your future. Would you take it every day?",
+   answers:[
+     {letter:"A",text:"Yes! Feeling content and peaceful every day sounds wonderful.",reaction:"😌",title:"The Peace Seeker",msg:"You value peace and contentment. That's a beautiful way to live.",thought:"But if you're always content, would you ever try to improve anything? Would you still grow?",kind:false,rebel:false},
+     {letter:"B",text:"No — dissatisfaction is what makes me try harder, learn more, and grow. I'd be stuck.",reaction:"📈",title:"The Growth Driver",msg:"You know that discomfort can be fuel. That's maturity.",thought:"But is it okay to suffer? When is dissatisfaction helpful and when is it just... suffering?",kind:false,rebel:false},
+     {letter:"C",text:"I'd take it on BAD days but not on good days. Best of both worlds!",reaction:"☀️",title:"The Mood Manager",msg:"You want control over when to feel what. That's self-awareness.",thought:"Would the bad days still feel bad if you knew you could escape them anytime?",kind:false,rebel:true},
+     {letter:"D",text:"Is contentment from a pill REAL contentment? Or am I just... drugged?",reaction:"💊",title:"The Authenticity Check",msg:"You asked whether the SOURCE of a feeling matters. That's a very deep question.",thought:"If a feeling feels exactly the same whether it comes from a pill or from your life, does the source matter?",kind:false,rebel:true},
+   ]},
+  {realm:"happiness", category:"HAPPINESS DILEMMA",
+   question:"You can erase all your SAD memories. Every disappointment, every loss, every heartbreak — gone. Would your life be better?",
+   answers:[
+     {letter:"A",text:"Yes! Sad memories just hurt. Getting rid of them would make life lighter and happier.",reaction:"🦋",title:"The Light Traveler",msg:"You want to travel through life without heavy baggage. That's understandable.",thought:"But don't sad memories teach us things? Would you make the same mistakes again without them?",kind:false,rebel:false},
+     {letter:"B",text:"No — my sad memories are part of who I am. They shaped me. I'd lose pieces of myself.",reaction:"🧩",title:"The Whole Self",msg:"You accept ALL of yourself — even the painful parts. That's self-love.",thought:"Is there a difference between 'shaped by sadness' and 'defined by sadness'? Can you heal WITHOUT forgetting?",kind:false,rebel:true},
+     {letter:"C",text:"I'd keep the LESSON but erase the PAIN. Remember what I learned, not how much it hurt.",reaction:"📝",title:"The Editor",msg:"You want to keep the wisdom without the wound. That's smart.",thought:"But can you really separate a lesson from the experience that taught it? Does wisdom work without the emotion?",kind:false,rebel:true},
+     {letter:"D",text:"I'd erase OTHER people's sad memories. Let ME carry the sadness so they don't have to.",reaction:"🛡️",title:"The Protector",msg:"You'd rather carry the weight yourself than see others hurt. That's extraordinary kindness.",thought:"But is it right to decide for other people what memories they keep?",kind:true,rebel:false},
+   ]},
+
+  // ── FRIENDSHIP FOREST ──
+  {realm:"friendship", category:"FRIENDSHIP LAB",
+   question:"Your BEST FRIEND moves away. You get a robot that looks and acts EXACTLY like them. Is the robot actually your friend?",
+   answers:[
+     {letter:"A",text:"Yes! If they act the same and make me feel the same, then they ARE the same.",reaction:"🤖",title:"The Practical Pal",msg:"You care about what something DOES, not what it's made of.",thought:"But what if you found out your REAL best friend had been replaced by a robot and you never knew? Would it matter?",kind:false,rebel:false},
+     {letter:"B",text:"No. A real friend has to be a real PERSON, with their own thoughts and feelings.",reaction:"❤️",title:"The Authentic Friend",msg:"For you, friendship needs something deeper than just acting right.",thought:"How do you know OTHER PEOPLE have real thoughts? You can't see inside their heads.",kind:false,rebel:false},
+     {letter:"C",text:"The robot is a DIFFERENT kind of friend. Like how a pet is different from a person friend.",reaction:"🐕",title:"The Category Maker",msg:"You invented a whole new category! Not friend or not-friend — a third thing.",thought:"How many things in life are either-or versus a different kind of thing entirely?",kind:false,rebel:true},
+     {letter:"D",text:"Can I have BOTH friends? The real one for real talks and the robot one for everyday hanging out?",reaction:"🎉",title:"The Abundance Thinker",msg:"Why choose when you can have both? You rejected the idea that friendship is limited.",thought:"Is love limited? If you love a second person, do you love the first one less? Or does love multiply?",kind:false,rebel:true},
+   ]},
+  {realm:"friendship", category:"FRIENDSHIP LAB",
+   question:"Your friend starts being mean to EVERYONE... except you. To you, they're still kind and fun. Are they a good friend?",
+   answers:[
+     {letter:"A",text:"Yes — they're good to ME, and that's what friendship is about.",reaction:"🤷",title:"The Loyal One",msg:"You judge people by how they treat YOU. That's honest.",thought:"But if they're mean to others, do you share responsibility if you stay friends? Are you saying it's okay?",kind:false,rebel:false},
+     {letter:"B",text:"No — a good person is good to everyone, not just their friends. I'd talk to them about it.",reaction:"🗣️",title:"The Kind Confronter",msg:"You care about how your friends treat everyone. That's integrity.",thought:"Is it easy to tell a friend they're wrong? What if they stop being nice to YOU too?",kind:true,rebel:false},
+     {letter:"C",text:"Maybe they're going through something hard. Being mean might be a sign they need help.",reaction:"🩹",title:"The Empathy First",msg:"You look for the WHY behind the behavior. That's compassion.",thought:"But understanding WHY someone is mean doesn't make the mean behavior okay. Where's the line?",kind:true,rebel:false},
+     {letter:"D",text:"I'd try to figure out if they're really my friend or just PRETENDING to be nice to me.",reaction:"🔍",title:"The Motive Hunter",msg:"You wonder WHY someone would be nice to you but mean to others.",thought:"If someone treats you specially, does that make you special — or does it mean they want something?",kind:false,rebel:true},
+   ]},
+  {realm:"friendship", category:"FRIENDSHIP LAB",
+   question:"You can have 1,000 casual friends but never a single best friend... OR exactly one best friend and no other friends at all. Which life do you choose?",
+   answers:[
+     {letter:"A",text:"1,000 friends! I'd always have someone to hang out with. Variety is the spice of life.",reaction:"🎪",title:"The Social Butterfly",msg:"You thrive in a crowd. Different friends for different moods.",thought:"But who would you call at 3am when something really matters? Is there depth without one-on-one?",kind:false,rebel:false},
+     {letter:"B",text:"One best friend. Depth matters more than numbers. One real connection beats a thousand shallow ones.",reaction:"💎",title:"The Deep Diver",msg:"You'd rather have one person who truly KNOWS you than a crowd who kind of knows you.",thought:"But what if that one friend moves away? Changes? What happens then?",kind:false,rebel:false},
+     {letter:"C",text:"Neither! I'd rather have 3-5 close friends. Medium depth, medium number — the best balance.",reaction:"⚖️",title:"The Goldilocks Friend",msg:"You found a middle ground the question didn't offer. That's thinking outside the box.",thought:"Why did the question give only two extremes? How many real choices in life are actually spectrums?",kind:false,rebel:true},
+     {letter:"D",text:"Can the 1,000 friends all be online friends? And the best friend be in real life? Loophole!",reaction:"💻",title:"The Loophole Finder",msg:"You found a creative solution by separating online and offline worlds.",thought:"Is an online friend different from an in-person friend? Can a screen friendship be just as real?",kind:false,rebel:true},
+   ]},
+
+  // ── IDENTITY ISLAND ──
+  {realm:"identity", category:"IDENTITY PUZZLE",
+   question:"You bury your favorite sneaker in the backyard. You dig it up 10 YEARS later — dirty, faded, full of holes. Is it the SAME sneaker or a DIFFERENT one?",
+   answers:[
+     {letter:"A",text:"Same sneaker! It's made of the exact same atoms. Nothing was added or removed.",reaction:"👟",title:"The Atom Counter",msg:"You believe what something IS comes down to what it's MADE OF.",thought:"But humans replace almost ALL their atoms every few years. Are you a different person than 7 years ago?",kind:false,rebel:false},
+     {letter:"B",text:"It's a DIFFERENT sneaker. It changed over time. Things are defined by what they're like RIGHT NOW.",reaction:"⏳",title:"The Present Focuser",msg:"You care about what something is in THIS moment.",thought:"If you're different now than as a baby, are you a different person? When did baby-you become now-you?",kind:false,rebel:false},
+     {letter:"C",text:"It's BOTH. Same sneaker, different CONDITION. Like how you're the same person even when you change.",reaction:"🔄",title:"The Both-And Thinker",msg:"You found a way to hold two truths at once. Not a contradiction!",thought:"What ELSE in life is 'both'? Are you the same person you were yesterday AND a different one?",kind:false,rebel:true},
+     {letter:"D",text:"NEITHER. The REAL sneaker is the MEMORY of wearing it. Physical stuff was never what made it yours.",reaction:"💭",title:"The Meaning Maker",msg:"What makes something important isn't atoms — it's what it MEANS to you.",thought:"If meaning is what matters, does anything have meaning without someone to care about it?",kind:false,rebel:true},
+   ]},
+  {realm:"identity", category:"IDENTITY PUZZLE",
+   question:"If you swapped brains with your worst enemy — your memories in their body, their memories in yours — who would YOU be?",
+   answers:[
+     {letter:"A",text:"I'd be ME, because my memories and personality are what make me who I am.",reaction:"🧠",title:"The Mind Keeper",msg:"You believe your identity lives in your mind, not your body.",thought:"But what about your body's instincts? Your reflexes? The way your body FEELS things? Don't those shape you too?",kind:false,rebel:false},
+     {letter:"B",text:"I'd be my ENEMY, because people would see their body and treat me like them. Identity is social.",reaction:"👥",title:"The Social Self",msg:"You believe who we ARE is shaped by how others see and treat us.",thought:"If everyone treated you like someone else, how long before you became that person?",kind:false,rebel:false},
+     {letter:"C",text:"I'd be someone NEW — a mix of my mind and their body. Neither the old me nor the old them.",reaction:"🌟",title:"The New Creation",msg:"You believe the combination creates something that never existed before.",thought:"Is identity more like a recipe — new ingredients make a new dish?",kind:false,rebel:true},
+     {letter:"D",text:"I wouldn't do it! The question is too weird. Some things you just don't mess with.",reaction:"🙅",title:"The Boundary Setter",msg:"You know when a question goes somewhere you don't want to follow. That's self-awareness.",thought:"Are there questions we SHOULDN'T ask? Or is every question worth exploring?",kind:false,rebel:false},
+   ]},
+  {realm:"identity", category:"IDENTITY PUZZLE",
+   question:"Everyone starts calling you by a completely different name. After 5 years, even your parents use the new name. Is your OLD name still your 'real' name?",
+   answers:[
+     {letter:"A",text:"No — my name is what people call me. If everyone uses the new name, THAT'S my name now.",reaction:"🏷️",title:"The Practical Self",msg:"You believe names are tools. They work if people use them.",thought:"But what if someone changes your name without asking? Can other people decide who you are?",kind:false,rebel:false},
+     {letter:"B",text:"Yes — the name my parents gave me at birth is my TRUE name forever, no matter who says what.",reaction:"👶",title:"The Root Keeper",msg:"You believe some things about you are unchangeable, no matter what the world does.",thought:"What ELSE about you is unchangeable? Your personality? Your values? What if THOSE change too?",kind:false,rebel:false},
+     {letter:"C",text:"I have TWO real names now. The old one for ME and the new one for EVERYONE ELSE.",reaction:"🎭",title:"The Dual Identity",msg:"You can hold two names — two selves — at the same time. That's sophisticated.",thought:"Do we ALL have different selves for different people? Is there a 'true' you underneath all the versions?",kind:false,rebel:true},
+     {letter:"D",text:"My REAL name is whatever I CHOOSE to call myself. Nobody else gets to decide.",reaction:"✊",title:"The Self-Namer",msg:"You own your identity. It's not given — it's chosen.",thought:"At what age should someone get to choose their own name? Their own identity? Is it ever TOO early?",kind:false,rebel:true},
+   ]},
+
+  // ── SECRET SANCTUARY ──
+  {realm:"secrets", category:"SECRETS AND PROMISES",
+   question:"A GIANT CHICKEN lands in your yard. It'll lay GOLDEN EGGS for you forever... but ONLY if you NEVER tell ANYONE. Not even your family. Ever. Deal?",
+   answers:[
+     {letter:"A",text:"YES! I'd be rich forever and all I have to do is keep one secret. GREAT deal!",reaction:"💰",title:"The Deal Maker",msg:"You saw an opportunity and took it.",thought:"But would you feel lonely having a secret that big? Can't share your amazing life... is it still amazing?",kind:false,rebel:false},
+     {letter:"B",text:"NO. I can't keep a secret that big from my family. Some things matter more than gold.",reaction:"👨‍👩‍👧",title:"The Family First",msg:"You chose connection over riches.",thought:"Are there ANY secrets worth keeping from people you love? What makes some secrets okay and others not?",kind:true,rebel:false},
+     {letter:"C",text:"Wait — the CHICKEN said I can't tell. But what if the chicken tells people? Loophole!",reaction:"🐔",title:"The Loophole Finder",msg:"You read the fine print! Lawyers AND philosophers examine the exact words.",thought:"Is following the exact words of a rule the same as doing what the rule MEANT?",kind:false,rebel:true},
+     {letter:"D",text:"What would I even DO with infinite golden eggs? That sounds like a storage problem.",reaction:"🥚",title:"The Practical Questioner",msg:"You looked past the fantasy: what would this ACTUALLY be like?",thought:"We dream of infinite money — but would infinite anything actually make us happy?",kind:false,rebel:true},
+   ]},
+  {realm:"secrets", category:"SECRETS AND PROMISES",
+   question:"You promise your best friend you'll never tell anyone they still sleep with a teddy bear. Then someone asks you DIRECTLY: 'Does your friend sleep with a teddy bear?' What do you say?",
+   answers:[
+     {letter:"A",text:"I say no. A promise is a promise, even if it means technically lying.",reaction:"🤐",title:"The Promise Keeper",msg:"You put loyalty above honesty. For you, keeping your word is sacred.",thought:"But is a lie to protect a promise still a lie? Can two good values — honesty and loyalty — ever fight each other?",kind:false,rebel:false},
+     {letter:"B",text:"I tell the truth. Honesty matters more than covering up something that isn't even bad.",reaction:"🗣️",title:"The Truth Teller",msg:"You believe honesty comes first. Secrets that require lies aren't worth keeping.",thought:"But you broke a promise. Is your friend going to trust you again? Which matters more — being honest or being trustworthy?",kind:false,rebel:false},
+     {letter:"C",text:"I'd say: 'That's not my secret to tell. Ask them yourself.'",reaction:"🎯",title:"The Boundary Setter",msg:"You found a THIRD option! You didn't lie AND you didn't break the promise.",thought:"Are most impossible choices really just missing a third option?",kind:false,rebel:true},
+     {letter:"D",text:"I'd say: 'What's wrong with teddy bears?' and make THEM feel weird for asking.",reaction:"😏",title:"The Uno Reverse",msg:"You flipped the question back on the asker. Clever!",thought:"Is it okay to embarrass someone to protect a friend? Where's the line between defending and attacking?",kind:true,rebel:true},
+   ]},
+
+  // ── TRUST TOWER ──
+  {realm:"trust", category:"TRUST PUZZLE",
+   question:"Your teacher says 2+2=4. Your calculator says 2+2=4. But a VOICE IN YOUR HEAD says 2+2=5. Who do you trust?",
+   answers:[
+     {letter:"A",text:"My teacher! They went to school for YEARS to learn math. Experts know things.",reaction:"👩‍🏫",title:"The Trust Builder",msg:"You trust experts. That's smart — society works because we trust people who know more.",thought:"But what if your teacher was wrong about something else? When should you question experts?",kind:false,rebel:false},
+     {letter:"B",text:"My calculator! Machines don't make mistakes. They're programmed to be correct.",reaction:"🔢",title:"The Tech Truster",msg:"You trust tools built for accuracy. Makes sense!",thought:"But who programmed the calculator? A human. Can you trust a tool without knowing how it works?",kind:false,rebel:false},
+     {letter:"C",text:"MYSELF! I have to trust my own brain. If I don't believe what I think, what CAN I believe?",reaction:"🧠",title:"The Self Truster",msg:"You believe in your own mind. That's courageous.",thought:"But have you ever been SURE about something and then found out you were wrong?",kind:false,rebel:false},
+     {letter:"D",text:"I wouldn't trust ANY of them. I'd get FOUR ACTUAL APPLES and count them myself.",reaction:"🍎",title:"The Evidence Seeker",msg:"You went straight to the evidence! That's the scientific method.",thought:"What if you can't test something yourself? How do you decide what's true when you can't check?",kind:false,rebel:false},
+   ]},
+  {realm:"trust", category:"TRUST PUZZLE",
+   question:"A stranger online tells you a secret about your best friend — something your friend has NEVER told you. Do you believe the stranger?",
+   answers:[
+     {letter:"A",text:"No — they're a stranger. Why would they know my friend better than I do?",reaction:"🛑",title:"The Loyal Skeptic",msg:"You trust your own relationship over random claims. That's loyalty.",thought:"But what if the stranger IS telling the truth? Would you want to know, or would you rather not?",kind:false,rebel:false},
+     {letter:"B",text:"I'd check with my friend first. If it's true, they should hear it from me, not a stranger.",reaction:"📞",title:"The Go-To-The-Source",msg:"You go straight to the person who matters. That's direct and honest.",thought:"But what if your friend denies it — and the stranger was right? How do you know who to believe?",kind:false,rebel:false},
+     {letter:"C",text:"I'd ask the stranger for PROOF. No evidence, no belief. Simple.",reaction:"📸",title:"The Evidence Demander",msg:"You don't believe things just because someone said them. That's critical thinking.",thought:"But what kind of proof would be enough? A photo can be faked. A video can be edited. What CAN'T be faked?",kind:false,rebel:false},
+     {letter:"D",text:"I'd wonder why a STRANGER is telling me this. What do THEY get out of it?",reaction:"🕵️",title:"The Motive Detective",msg:"You looked past the claim to the person making it. Why are they REALLY telling you?",thought:"Does someone's motive change whether what they say is true? Can a bad person tell the truth?",kind:false,rebel:true},
+   ]},
+
+  // ── SUPERPOWER SUMMIT ──
+  {realm:"superpower", category:"SUPERPOWER DILEMMA",
+   question:"You can PAUSE TIME whenever you want. BUT... while time is paused, ICE CREAM has NO TASTE. Do you still take the power?",
+   answers:[
+     {letter:"A",text:"YES! I'd use it for stuff other than eating. Frozen time beats ice cream.",reaction:"⏸️",title:"The Strategist",msg:"You saw the big picture. Minor downside, amazing power.",thought:"But what if using the power made you lonely? The only moving person in a frozen world...",kind:false,rebel:false},
+     {letter:"B",text:"NO. What's the point of superpowers if you can't enjoy ICE CREAM? Dealbreaker.",reaction:"🍦",title:"The Joy Defender",msg:"You know what you love and won't give it up. Joy isn't negotiable.",thought:"Where's your line? All food has no taste but you can fly? Time-freeze but no music ever again?",kind:false,rebel:false},
+     {letter:"C",text:"I'd only pause time to take NAPS. Naps don't need taste. Checkmate, ice cream curse!",reaction:"😴",title:"The Workaround Wizard",msg:"You dodged the downside entirely. That's creative problem-solving.",thought:"Are most impossible choices hiding a third option we just haven't seen yet?",kind:false,rebel:true},
+     {letter:"D",text:"Can I FAST-FORWARD time instead? Skipping homework sounds WAY better than pausing.",reaction:"⏩",title:"The Reframer",msg:"You didn't answer — you changed the question. That's a whole different superpower.",thought:"If you could skip all boring parts of life, would you? Or are boring parts secretly where important stuff happens?",kind:false,rebel:true},
+   ]},
+  {realm:"superpower", category:"SUPERPOWER DILEMMA",
+   question:"You gain the power to read minds. But you can NEVER turn it off. Every thought from every person near you — the kind ones, the mean ones, the private ones. Still want it?",
+   answers:[
+     {letter:"A",text:"YES! Knowing what people REALLY think would be incredibly useful.",reaction:"📡",title:"The Truth Seeker",msg:"You want to know what's REALLY going on behind the smiles. Bold.",thought:"But what if you hear things that hurt you? What if people think things they don't mean? Can you un-hear?",kind:false,rebel:false},
+     {letter:"B",text:"NO — some thoughts are private for a reason. I don't want to invade people's minds.",reaction:"🔒",title:"The Privacy Guardian",msg:"You respect other people's inner worlds. That's a rare and beautiful value.",thought:"But would you really be 'invading' if you can't control it? Is it invasion if it's not on purpose?",kind:true,rebel:false},
+     {letter:"C",text:"I'd move to a cabin in the woods. Fewer people = fewer thoughts to hear.",reaction:"🏡",title:"The Hermit Solution",msg:"You chose to change your LIFE rather than give up the power.",thought:"Is it better to have a power and run from it, or never have had it at all?",kind:false,rebel:true},
+     {letter:"D",text:"Can I learn to CONTROL it? Like, start with it always on and train myself to filter?",reaction:"🎛️",title:"The Trainer",msg:"You believe abilities can be developed. You don't accept limitations as permanent.",thought:"How much of life is about what you're given versus what you DO with what you're given?",kind:false,rebel:false},
+   ]},
+  {realm:"superpower", category:"SUPERPOWER DILEMMA",
+   question:"You can become INVISIBLE, but ONLY when nobody is looking at you. Useful or useless?",
+   answers:[
+     {letter:"A",text:"Useful! I'd wait until nobody's looking, go invisible, then sneak around.",reaction:"👻",title:"The Opportunity Grabber",msg:"You found the use case immediately. Where there's a loophole, there's a way.",thought:"But what can you actually DO while invisible that you couldn't do by just... waiting until nobody is looking?",kind:false,rebel:false},
+     {letter:"B",text:"Useless! What's the point of being invisible if it only works when nobody can see you anyway?",reaction:"🤦",title:"The Logic Checker",msg:"You spotted the contradiction. If nobody's looking, you're already 'invisible' to them.",thought:"But isn't there a difference between 'nobody is looking at you' and 'nobody CAN look at you'?",kind:false,rebel:false},
+     {letter:"C",text:"I'd use it to escape awkward situations! Turn a corner, nobody looking, POOF — gone.",reaction:"🏃",title:"The Escape Artist",msg:"You found the PERFECT use case. Social escape hatch!",thought:"But would you ever face anything difficult if you could just disappear?",kind:false,rebel:true},
+     {letter:"D",text:"What if a SECURITY CAMERA is looking? Does that count? What about animals?",reaction:"📹",title:"The Fine Print Reader",msg:"You're questioning the rules of the power itself. What counts as 'looking'?",thought:"How many arguments in life are really about undefined terms? What does 'looking' even mean?",kind:false,rebel:true},
+   ]},
+
+  // ── TIME TANGLE ──
+  {realm:"time", category:"TIME TWISTER",
+   question:"You can see exactly 24 hours into the future. But you CANNOT change ANYTHING you see. The future is locked. Do you still look?",
+   answers:[
+     {letter:"A",text:"YES! Knowing is always better than not knowing, even if I can't change it.",reaction:"🔮",title:"The Knowledge Seeker",msg:"You'd rather know than wonder. For you, uncertainty is worse than bad news.",thought:"But if tomorrow shows something terrible, you'll spend 24 hours dreading something you can't stop. Is that worth it?",kind:false,rebel:false},
+     {letter:"B",text:"NO — if I can't change anything, knowing would just make me anxious or sad.",reaction:"🙈",title:"The Peace Protector",msg:"You'd rather live in the present, one day at a time. That's mindfulness.",thought:"But what if you'd want to say goodbye? What if knowing would let you appreciate today more?",kind:false,rebel:false},
+     {letter:"C",text:"I'd look only on SPECIAL days — before big tests, trips, or important events.",reaction:"📅",title:"The Selective Seer",msg:"You'd use the power as a tool, not a lifestyle. Moderation in all things.",thought:"Is it really 'not changing anything' if you decide WHEN to look? Does choosing when to look change things?",kind:false,rebel:true},
+     {letter:"D",text:"Wait — can I tell OTHER PEOPLE what I see? Maybe THEY can change things?",reaction:"🔄",title:"The Workaround Thinker",msg:"You looked for a loophole. I can't change it — but what about everyone else?",thought:"If someone ELSE changes the future based on what you saw, did YOU change it?",kind:false,rebel:true},
+   ]},
+  {realm:"time", category:"TIME TWISTER",
+   question:"You can relive ONE day of your life forever — the same 24 hours over and over. Which day do you pick, and why?",
+   answers:[
+     {letter:"A",text:"The BEST day of my life! Why wouldn't I want to be happy forever?",reaction:"🎉",title:"The Joy Looper",msg:"You'd choose happiness. That makes perfect sense.",thought:"But after the 1,000th time, would the best day still feel special? Or would it become ordinary?",kind:false,rebel:false},
+     {letter:"B",text:"A day where I made a big MISTAKE — so I could figure out what I should have done differently.",reaction:"🔧",title:"The Fixer",msg:"You'd use eternity to understand your regrets. That's deep.",thought:"But if you figure out the 'right' choice and can never actually MOVE forward, isn't that a special kind of torture?",kind:false,rebel:true},
+     {letter:"C",text:"A completely ORDINARY day — so I could notice all the little things I missed the first time.",reaction:"🌼",title:"The Detail Noticer",msg:"You'd find magic in the mundane. That's a beautiful way to see the world.",thought:"If you paid that much attention to every day, would you need to relive it?",kind:false,rebel:false},
+     {letter:"D",text:"I wouldn't do it. Being stuck forever sounds like a nightmare, even on a good day.",reaction:"🚪",title:"The Freedom Lover",msg:"You value moving forward more than any single experience. That's wisdom.",thought:"Is eternity always a curse, or is it only a curse because we imagine it from a mortal perspective?",kind:false,rebel:true},
+   ]},
+
+  // ── NATURE NOOK ──
+  {realm:"nature", category:"NATURE'S COURT",
+   question:"A wild animal saves your life — pulls you from a river, warns you of danger. Do you owe it anything?",
+   answers:[
+     {letter:"A",text:"Yes! It saved my life. I should protect it, feed it, make sure it's safe forever.",reaction:"🐺",title:"The Life Debtor",msg:"You believe saving a life creates a bond. That's honor.",thought:"But the animal doesn't KNOW it saved you. It was instinct. Does that change the debt?",kind:true,rebel:false},
+     {letter:"B",text:"No — animals act on instinct. It didn't CHOOSE to save me, so I don't owe it anything specific.",reaction:"🔬",title:"The Instinct Analyst",msg:"You separate intention from outcome. A rock that stops a bullet didn't CHOOSE to save you either.",thought:"But we thank people for things they do without thinking too. Is gratitude only for intentional acts?",kind:false,rebel:false},
+     {letter:"C",text:"I owe it the same thing I owe all animals — respect and care, whether it saved me or not.",reaction:"🌍",title:"The Equal Carer",msg:"You don't need a life debt to care about animals. You already do.",thought:"If you care about all animals equally, does a special act of heroism change anything?",kind:true,rebel:false},
+     {letter:"D",text:"I'd try to communicate with it. Maybe it DID choose — and I want to understand why.",reaction:"🗨️",title:"The Interspecies Diplomat",msg:"You're open to the idea that animals might have reasons we don't understand.",thought:"How would we know if an animal made a choice versus followed an instinct? How do we know WE'RE not just following instincts?",kind:false,rebel:true},
+   ]},
+  {realm:"nature", category:"NATURE'S COURT",
+   question:"Trees can suddenly talk — but they ONLY say mean, hurtful things. Insults, cruel observations, your deepest insecurities. Should we still protect them?",
+   answers:[
+     {letter:"A",text:"Yes! They're living beings. Being mean doesn't mean they deserve to die.",reaction:"🌳",title:"The Unconditional Protector",msg:"You protect life even when it's unpleasant. That's moral consistency.",thought:"But what if their words cause real harm? What if someone is deeply hurt by what the trees say?",kind:true,rebel:false},
+     {letter:"B",text:"No — if they're going to be cruel, they can fend for themselves. Protection requires mutual respect.",reaction:"✂️",title:"The Boundary Setter",msg:"You believe rights come with responsibilities. Even for trees.",thought:"Do we only protect things that are nice to us? What about thorny plants, or stinky flowers, or biting insects?",kind:false,rebel:false},
+     {letter:"C",text:"I'd try to understand WHY they're mean. Hurt people hurt people — maybe hurt trees are the same.",reaction:"🩺",title:"The Tree Therapist",msg:"You look for the wound behind the words. That's empathy for the seemingly unlovable.",thought:"What if there's no reason — they're just mean? Does everything deserve understanding?",kind:true,rebel:true},
+     {letter:"D",text:"I'd just wear noise-canceling headphones in the forest. Problem solved.",reaction:"🎧",title:"The Practical Pacifist",msg:"You bypassed the moral dilemma with technology. Clever.",thought:"But ignoring a problem isn't the same as solving it. What if the trees need something and meanness is their only way to ask?",kind:false,rebel:true},
+   ]},
+  {realm:"nature", category:"NATURE'S COURT",
+   question:"You suddenly understand what your pet is thinking. Every judgmental thought, every complaint about the food, every secret opinion about your friends. Do you WANT to know?",
+   answers:[
+     {letter:"A",text:"YES! I want to know EVERYTHING my pet thinks. The truth, even if it hurts.",reaction:"🐕",title:"The Truth Hungry",msg:"You want real connection, even if it's uncomfortable. That's brave.",thought:"But what if your pet thinks you're boring? What if they prefer someone else? Can your heart take it?",kind:false,rebel:false},
+     {letter:"B",text:"NO — I like the mystery. If I knew what my pet thought, the magic would be gone.",reaction:"✨",title:"The Mystery Keeper",msg:"You believe some relationships work BETTER without complete understanding.",thought:"Is this true for people too? Are there things better left unsaid between friends?",kind:false,rebel:false},
+     {letter:"C",text:"I'd want to know but only if I could tell my pet what I'M thinking too. Fair is fair.",reaction:"⚖️",title:"The Two-Way Street",msg:"You want mutual understanding. No one-way mirrors in YOUR relationships.",thought:"Would your pet even WANT to know what you think? Do you assume they'd care?",kind:false,rebel:true},
+     {letter:"D",text:"I'd use it to make their life BETTER — better food, better walks, whatever makes them happiest.",reaction:"🎁",title:"The Pet Spoiler",msg:"You'd use the power purely to serve your pet. That's selfless love.",thought:"But is a life where you get everything you want the best life? Even for a pet?",kind:true,rebel:false},
+   ]},
+
+  // ── DREAM DEPTHS ──
+  {realm:"dream", category:"DREAM FORGE",
+   question:"You can create ANYTHING by drawing it — but it disappears when you fall asleep. What do you do with this power?",
+   answers:[
+     {letter:"A",text:"Draw amazing things every day — castles, dragons, whole worlds — and enjoy them while they last.",reaction:"🎨",title:"The Daily Creator",msg:"You'd create for the JOY of creating, not for permanence. That's an artist's heart.",thought:"If something beautiful only lasts a day, is it less valuable? Does everything need to last forever to matter?",kind:false,rebel:false},
+     {letter:"B",text:"Draw practical things — food, tools, money — and use them before bedtime.",reaction:"🔧",title:"The Practical Creator",msg:"You'd use magic for everyday needs. Practical imagination!",thought:"But would you ever make anything just for beauty? Is there value in things that serve no practical purpose?",kind:false,rebel:false},
+     {letter:"C",text:"Draw things for OTHER people — gifts that only last a day but mean everything.",reaction:"💝",title:"The Gift Giver",msg:"You'd use your power to bring joy to others. That's generosity.",thought:"Would a one-day gift mean LESS because it's temporary — or MORE because it's precious and rare?",kind:true,rebel:false},
+     {letter:"D",text:"I'd draw a machine that makes my drawings PERMANENT. Loophole!",reaction:"🧩",title:"The Meta Creator",msg:"You used the power to overcome the limitation of the power. Genius.",thought:"Is there always a way around every rule? Or do some limitations exist for a reason?",kind:false,rebel:true},
+   ]},
+  {realm:"dream", category:"DREAM FORGE",
+   question:"Every time you imagine a story, it becomes REAL somewhere. The heroes, the villains, the happy endings and the sad ones. Does that change what you choose to imagine?",
+   answers:[
+     {letter:"A",text:"Yes — I'd only imagine happy, kind stories. I don't want to create suffering anywhere.",reaction:"☮️",title:"The Responsible Dreamer",msg:"You feel responsible for what your imagination creates. That's extraordinary empathy.",thought:"But are stories without any conflict actually interesting? Can you have a good story without ANY villains?",kind:true,rebel:false},
+     {letter:"B",text:"No — stories need conflict to mean something. I'd still imagine everything, good and bad.",reaction:"⚔️",title:"The Full Spectrum",msg:"You believe all stories — even the hard ones — deserve to exist.",thought:"But now REAL people somewhere are suffering because of your imagination. Is artistic freedom worth that?",kind:false,rebel:true},
+     {letter:"C",text:"I'd imagine stories where villains get redeemed and everyone gets a happy ending.",reaction:"🌈",title:"The Redemption Writer",msg:"You found a way to have conflict AND kindness. The best of both.",thought:"Can every villain be redeemed? Is there a point beyond which someone doesn't deserve a happy ending?",kind:true,rebel:true},
+     {letter:"D",text:"I'd stop imagining stories entirely. The risk is too high.",reaction:"🛑",title:"The Imagination Stopper",msg:"You'd rather silence your own creativity than risk causing harm. That's a heavy choice.",thought:"Is it even POSSIBLE to stop imagining? Try not to think of a pink elephant right now.",kind:false,rebel:false},
+   ]},
+
+  // ── COURAGE CANYON ──
+  {realm:"courage", category:"COURAGE CRUCIBLE",
+   question:"Which is braver: someone who feels NO fear and does dangerous things, or someone who IS terrified but does them anyway?",
+   answers:[
+     {letter:"A",text:"The fearless person! They can do things nobody else can. Fearlessness IS bravery.",reaction:"🦁",title:"The Lion Heart",msg:"You admire people who seem to fear nothing. They're like superheroes.",thought:"But is it really 'brave' if you don't feel fear? Is a rock brave for not being scared of falling?",kind:false,rebel:false},
+     {letter:"B",text:"The terrified person! Bravery isn't not feeling fear — it's feeling fear and pushing through.",reaction:"💪",title:"The Courage Understander",msg:"You know that true courage requires fear. Without fear, it's just... action.",thought:"Have you ever done something even though you were scared? That's the real thing.",kind:false,rebel:false},
+     {letter:"C",text:"They're both brave in different ways. Why compare? Different kinds of courage for different situations.",reaction:"🤝",title:"The Both-And",msg:"You refuse to rank courage. All forms of bravery are valid.",thought:"Is there ever a time to say one kind of courage IS better? What about in an emergency?",kind:false,rebel:false},
+     {letter:"D",text:"The BRAVEST person is someone afraid who helps OTHERS despite their fear. Helping yourself is different.",reaction:"🦸",title:"The Helper Hero",msg:"For you, courage is only fully realized when it serves others.",thought:"Is courage less valuable if it's 'selfish'? What about the courage to leave a bad situation?",kind:true,rebel:false},
+   ]},
+  {realm:"courage", category:"COURAGE CRUCIBLE",
+   question:"You can remove FEAR from the entire world. Nobody would ever be scared again. Would you do it?",
+   answers:[
+     {letter:"A",text:"YES! Fear causes so much suffering. A world without fear is a world with more peace.",reaction:"🕊️",title:"The Peace Bringer",msg:"You see fear as a source of pain and want to heal the world.",thought:"But fear also stops people from doing dangerous things. Without fear of heights, would more people fall?",kind:true,rebel:false},
+     {letter:"B",text:"NO — fear keeps us alive. It warns us of danger. Removing it would be dangerous.",reaction:"⚠️",title:"The Guardian",msg:"You recognize that fear serves a purpose. It's protection, not just pain.",thought:"But what about fears that DON'T protect us — fear of failure, fear of judgment? Are those useful too?",kind:false,rebel:false},
+     {letter:"C",text:"I'd remove UNNECESSARY fears but keep the useful ones. Stage fright gone, snake-fear stays.",reaction:"🎛️",title:"The Fear Editor",msg:"You want to curate fear — keep the helpful, discard the harmful.",thought:"But who decides which fears are 'unnecessary'? Your unnecessary fear might be someone else's daily reality.",kind:false,rebel:true},
+     {letter:"D",text:"I'd remove fear from MYSELF first and see how it goes. Be the test subject.",reaction:"🧪",title:"The Experimenter",msg:"You'd try it on yourself before making a decision for the world. That's responsible.",thought:"Would you still be YOU without fear? How much of your personality is shaped by what you're afraid of?",kind:false,rebel:false},
+   ]},
+
+  // ── MYSTERY MANOR ──
+  {realm:"mystery", category:"MYSTERY MANOR",
+   question:"You find a door in your house that wasn't there yesterday. It has a sign: 'ALL QUESTIONS ANSWERED INSIDE.' Do you open it?",
+   answers:[
+     {letter:"A",text:"YES! Immediately! I NEED to know the answers to everything!",reaction:"🚪",title:"The Door Opener",msg:"Your curiosity overpowers every other instinct. That's the heart of a true wonderer.",thought:"But what if some answers are terrible? What if knowing everything CHANGES you in ways you can't undo?",kind:false,rebel:false},
+     {letter:"B",text:"No — some mysteries should stay mysterious. The world needs wonder.",reaction:"🔮",title:"The Mystery Keeper",msg:"You believe not knowing is part of what makes life beautiful.",thought:"But would you really walk past that door every day and never wonder? How long before curiosity wins?",kind:false,rebel:true},
+     {letter:"C",text:"I'd write down my questions FIRST, then open it. I want to be prepared.",reaction:"📋",title:"The Prepared Explorer",msg:"You don't rush into the unknown — you get ready first. That's wisdom.",thought:"But can you ever really be 'ready' for all the answers? What questions would you put at the TOP of your list?",kind:false,rebel:false},
+     {letter:"D",text:"I'd send my best friend in first and ask THEM what's inside. I trust their judgment.",reaction:"👥",title:"The Scout Sender",msg:"You delegate the risk. Smart — but are you sure you want someone else's filter on the truth?",thought:"Would your friend describe things the same way you would? Is there such a thing as unbiased reporting?",kind:false,rebel:false},
+   ]},
+  {realm:"mystery", category:"MYSTERY MANOR",
+   question:"A book contains every true answer in the universe — but it's written in a language NOBODY can read. Is the book valuable?",
+   answers:[
+     {letter:"A",text:"Yes — the answers ARE in there, even if we can't access them yet. We might learn to read it someday.",reaction:"📚",title:"The Optimist",msg:"You believe potential value is real value. The book is a promise.",thought:"Is a treasure you can never open still a treasure? Or is it just a heavy box?",kind:false,rebel:false},
+     {letter:"B",text:"No — if nobody can read it, it might as well be blank. Value requires access.",reaction:"📄",title:"The Pragmatist",msg:"You measure value by what something can actually DO, not what it could theoretically do.",thought:"But people searched for centuries to read Egyptian hieroglyphics — and eventually they succeeded. Was the Rosetta Stone worthless before they figured it out?",kind:false,rebel:false},
+     {letter:"C",text:"It's valuable as a GOAL — something to work toward. The pursuit of understanding matters.",reaction:"🎯",title:"The Purpose Giver",msg:"You see the book as a reason to strive, not just a source of answers.",thought:"Is the journey toward answers sometimes MORE valuable than the answers themselves?",kind:false,rebel:false},
+     {letter:"D",text:"It depends — does the book know it can't be read? Maybe it WANTS to be decoded, and that's the first clue.",reaction:"🕵️",title:"The Code Breaker",msg:"You're already solving the puzzle. A book that can't be read IS the first mystery to solve.",thought:"What if the secret to reading the book is hidden in the book itself? What would you look for first?",kind:false,rebel:true},
+   ]},
+];
+
+const ALL_QUESTIONS = SCENARIOS; // alias for badge checks
+
+// ══════════════════════════════════════════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════════════════════════════════════════
+
+let GS = {
+  name: "",
+  avatar: 0, // index into AVATARS
+  xp: 0,
+  questionsAnswered: 0,
+  currentRealm: null, // realm ID being played
+  currentQIndex: 0,   // index within current realm's questions
+  realmProgress: {},  // {realmId: questionsAnsweredInRealm}
+  earnedBadges: [],
+  kindAnswers: 0,
+  rebelAnswers: 0,
+  fastAnswers: 0,
+  fastAnswerTimer: null,
+  totalAnswers: {},   // {scenarioIndex: answerIndex}
+  questionOrder: {},  // {realmId: [shuffled indices]}
+  activeRealmQuestions: [], // questions for current realm session
+  sessionStart: null,
+};
+
+function resetGS() {
+  GS = {
+    name: "",
+    avatar: 0,
+    xp: 0,
+    questionsAnswered: 0,
+    currentRealm: null,
+    currentQIndex: 0,
+    realmProgress: {},
+    earnedBadges: [],
+    kindAnswers: 0,
+    rebelAnswers: 0,
+    fastAnswers: 0,
+    fastAnswerTimer: null,
+    totalAnswers: {},
+    questionOrder: {},
+    activeRealmQuestions: [],
+    sessionStart: Date.now(),
+  };
+}
+
+function currentLevel() {
+  let lvl = LEVELS[0];
+  for (const l of LEVELS) { if (GS.xp >= l.xp) lvl = l; }
+  return lvl;
+}
+
+function xpForNextLevel() {
+  const cl = currentLevel();
+  const idx = LEVELS.indexOf(cl);
+  return idx < LEVELS.length - 1 ? LEVELS[idx + 1].xp : cl.xp;
+}
+
+function xpProgress() {
+  const cl = currentLevel();
+  const next = xpForNextLevel();
+  if (next === cl.xp) return 100;
+  return Math.min(100, Math.round(((GS.xp - cl.xp) / (next - cl.xp)) * 100));
+}
+
+function realmForId(id) { return REALMS.find(r=>r.id===id); }
+function questionsForRealm(realmId) { return SCENARIOS.filter(s=>s.realm===realmId); }
+
+function completedRealms() {
+  return Object.entries(GS.realmProgress).filter(([rid, count]) => {
+    return count >= realmQuestionCount(rid);
+  }).map(([rid]) => rid);
+}
+
+function isRealmUnlocked(realm) {
+  if (realm.required === 0) return true;
+  return completedRealms().length >= realm.required;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SAVE / LOAD
+// ══════════════════════════════════════════════════════════════════════════════
+
+function saveGame() {
+  const data = {
+    name: GS.name,
+    avatar: GS.avatar,
+    xp: GS.xp,
+    questionsAnswered: GS.questionsAnswered,
+    realmProgress: GS.realmProgress,
+    earnedBadges: GS.earnedBadges,
+    kindAnswers: GS.kindAnswers,
+    rebelAnswers: GS.rebelAnswers,
+    totalAnswers: GS.totalAnswers,
+    questionOrder: GS.questionOrder,
+  };
+  localStorage.setItem('questionarium_save', JSON.stringify(data));
+}
+
+function loadGame() {
+  const raw = localStorage.getItem('questionarium_save');
+  if (!raw) return false;
+  try {
+    const data = JSON.parse(raw);
+    GS.name = data.name || "";
+    GS.avatar = data.avatar || 0;
+    GS.xp = data.xp || 0;
+    GS.questionsAnswered = data.questionsAnswered || 0;
+    GS.realmProgress = data.realmProgress || {};
+    GS.earnedBadges = data.earnedBadges || [];
+    GS.kindAnswers = data.kindAnswers || 0;
+    GS.rebelAnswers = data.rebelAnswers || 0;
+    GS.totalAnswers = data.totalAnswers || {};
+    GS.questionOrder = data.questionOrder || {};
+    GS.sessionStart = Date.now();
+    return true;
+  } catch(e) { return false; }
+}
+
+function hasSave() {
+  return !!localStorage.getItem('questionarium_save');
+}
+
+function deleteSave() {
+  localStorage.removeItem('questionarium_save');
+}
+
+function saveAndQuit() {
+  saveGame();
+  GS.currentRealm = null;
+  renderRealmMap();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BADGES & LEVELING
+// ══════════════════════════════════════════════════════════════════════════════
+
+function checkBadges() {
+  const newlyEarned = [];
+  for (const badge of BADGES) {
+    if (GS.earnedBadges.includes(badge.id)) continue;
+    try {
+      if (badge.check(GS)) {
+        GS.earnedBadges.push(badge.id);
+        newlyEarned.push(badge);
+      }
+    } catch(e) {}
+  }
+  return newlyEarned;
+}
+
+function awardXP(amount) {
+  const oldLevel = currentLevel().level;
+  GS.xp += amount;
+  const newLevel = currentLevel().level;
+  saveGame();
+  if (newLevel > oldLevel) {
+    setTimeout(() => showToast(`⬆️ Level Up! You're now a ${currentLevel().name}!`, 'levelup'), 300);
+    confetti();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════════════════════════════════
+
+function showToast(msg, type) {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function confetti() {
+  const colors = ['#f5576c','#667eea','#764ba2','#f093fb','#ffd43b','#51cf66','#ff922b','#20c997'];
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.top = -(Math.random() * 20) + 'px';
+    piece.style.width = (Math.random() * 10 + 6) + 'px';
+    piece.style.height = (Math.random() * 10 + 6) + 'px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = Math.random() * .5 + 's';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 3500);
+  }
+}
+
+function updatePlayerBar() {
+  const bar = document.getElementById('playerBar');
+  if (!GS.name) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  document.getElementById('pAvatar').textContent = AVATARS[GS.avatar].emoji;
+  document.getElementById('pName').textContent = GS.name;
+  const lvl = currentLevel();
+  document.getElementById('pLevel').textContent = `Level ${lvl.level} — ${lvl.name}`;
+  document.getElementById('xpBar').style.width = xpProgress() + '%';
+  document.getElementById('badgeCount').textContent = `🏅 ${GS.earnedBadges.length}/${BADGES.length}`;
+  document.getElementById('headerMascot').textContent = AVATARS[GS.avatar].emoji;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AUDIO ENGINE & READ-ALOUD
+// ══════════════════════════════════════════════════════════════════════════════
+
+const TTS_SERVER = "http://localhost:8942";
+let ttsServerAvailable = false;
+let currentAudio = null;
+let readAloudMode = false;
+let raHoverTimeout = null;
+let lastRaSpoken = '';
+let audioQueue = [];
+let queueProcessing = false;
+
+async function detectTTSServer() {
+  try {
+    const resp = await fetch(`${TTS_SERVER}/health`, { signal: AbortSignal.timeout(1500) });
+    if (resp.ok) {
+      ttsServerAvailable = true;
+      const info = await resp.text();
+      console.log("🎙️ TTS server found:", info.trim());
+      return true;
+    }
+  } catch(e) {}
+  ttsServerAvailable = false;
+  console.log("🔊 TTS server not found — using browser speech");
+  return false;
+}
+
+function speak(text) {
+  if (!text) return;
+  if (ttsServerAvailable) {
+    speakAndrew(text);
+  } else {
+    speakBrowser(text);
+  }
+}
+
+function speakAndrew(text) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const enc = encodeURIComponent(text);
+  const a = new Audio(`${TTS_SERVER}/speak?text=${enc}`);
+  currentAudio = a;
+  a.play().catch(() => {});
+  a.onended = () => { currentAudio = null; };
+  return a;
+}
+
+function queueAndrew(text) {
+  // Queue non-critical speech (like read-aloud hovers) so they don't stomp each other
+  audioQueue.push(text);
+  processQueue();
+}
+
+async function processQueue() {
+  if (queueProcessing || audioQueue.length === 0) return;
+  queueProcessing = true;
+  while (audioQueue.length > 0) {
+    const text = audioQueue.shift();
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    const enc = encodeURIComponent(text);
+    const a = new Audio(`${TTS_SERVER}/speak?text=${enc}`);
+    currentAudio = a;
+    try {
+      await a.play();
+      await new Promise(r => { a.onended = r; a.onerror = r; });
+    } catch(e) {}
+    currentAudio = null;
+  }
+  queueProcessing = false;
+}
+
+function speakBrowser(text) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.9; u.pitch = 1.05;
+    const voices = speechSynthesis.getVoices();
+    const good = voices.find(v => v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Daniel') || v.name.includes('Samantha'));
+    if (good) u.voice = good;
+    u.onend = () => { currentAudio = null; };
+    speechSynthesis.speak(u);
+  }
+}
+
+function toggleReadAloud() {
+  readAloudMode = !readAloudMode;
+  const btn = document.getElementById('raToggle');
+  if (readAloudMode) {
+    btn.classList.add('active');
+    btn.querySelector('.ra-icon').textContent = '🔊';
+    btn.innerHTML = btn.innerHTML.replace('Read Aloud', 'Reading Aloud');
+    const modeLabel = ttsServerAvailable ? 'Andrew voice' : 'browser voice';
+    showToast(`🔊 Read-aloud mode ON — hover to hear (${modeLabel})`, 'info');
+    setupReadAloudListeners();
+    // Announce mode
+    speak("Read-aloud mode activated.");
+  } else {
+    btn.classList.remove('active');
+    btn.querySelector('.ra-icon').textContent = '🔇';
+    btn.innerHTML = btn.innerHTML.replace('Reading Aloud', 'Read Aloud');
+    teardownReadAloudListeners();
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    window.speechSynthesis?.cancel();
+    audioQueue = [];
+    queueProcessing = false;
+  }
+}
+
+function getSpeakableText(el) {
+  // Walk up from the hovered element to find a meaningful label
+  let target = el;
+  // Check specific selectors in priority order
+  const selectors = [
+    {sel:'.answer-btn', get: (e) => {
+      const letter = e.querySelector('.answer-letter')?.textContent || '';
+      const text = e.querySelector('.answer-text')?.textContent || '';
+      return `Answer ${letter}: ${text}`;
+    }},
+    {sel:'.realm-card:not(.locked)', get: (e) => {
+      const name = e.querySelector('.realm-name')?.textContent || '';
+      const count = e.querySelector('.realm-count')?.textContent || '';
+      return `${name}. ${count}.`;
+    }},
+    {sel:'.question-text', get: (e) => e.textContent.replace(/🔊.*$/,'').trim()},
+    {sel:'.reaction-msg', get: (e) => e.textContent.replace(/^🔊\s*/,'').trim()},
+    {sel:'.reaction-thought', get: (e) => e.textContent.replace(/^🔊\s*/,'').trim()},
+    {sel:'.continue-btn', get: (e) => e.textContent.trim()},
+    {sel:'.btn-primary', get: (e) => e.textContent.trim()},
+    {sel:'.btn-secondary', get: (e) => e.textContent.trim()},
+    {sel:'.btn-sm', get: (e) => e.textContent.replace(/[🗺️💾🔄📂]/g,'').trim() || e.title},
+    {sel:'.realm-banner', get: (e) => e.textContent.trim()},
+    {sel:'.avatar-option', get: (e) => {
+      const label = e.querySelector('.avatar-label')?.textContent || '';
+      return label ? `Avatar: ${label}` : '';
+    }},
+    {sel:'input[type=text]', get: (e) => {
+      const label = document.querySelector('label')?.textContent || '';
+      return label ? `${label} field` : 'Text input field';
+    }},
+    {sel:'.skip-btn', get: (e) => 'Skip this question'},
+    {sel:'.readaloud-toggle', get: (e) => readAloudMode ? 'Turn read-aloud off' : 'Turn read-aloud on'},
+  ];
+
+  for (const {sel, get} of selectors) {
+    const match = target.closest(sel);
+    if (match) {
+      const text = get(match);
+      if (text && text.trim()) return text.trim();
+      return null;
+    }
+  }
+  // Fallback: if the element itself or its parent is a button
+  const btn = target.closest('button');
+  if (btn) {
+    const t = btn.textContent.replace(/[🔊🗺️💾🔄📂🏆🔇]/g,'').trim();
+    return t || btn.title || btn.getAttribute('aria-label') || 'Button';
+  }
+  return null;
+}
+
+function onReadAloudHover(e) {
+  if (!readAloudMode) return;
+  const text = getSpeakableText(e.target);
+  if (!text || text === lastRaSpoken) return;
+
+  clearTimeout(raHoverTimeout);
+  raHoverTimeout = setTimeout(() => {
+    lastRaSpoken = text;
+    if (ttsServerAvailable) {
+      // Cancel any current browser speech, then queue
+      window.speechSynthesis?.cancel();
+      queueAndrew(text);
+    } else {
+      speakBrowser(text);
+    }
+  }, 400); // 400ms debounce — speak only after hovering steadily
+}
+
+function setupReadAloudListeners() {
+  document.addEventListener('mouseover', onReadAloudHover, true);
+}
+
+function teardownReadAloudListeners() {
+  document.removeEventListener('mouseover', onReadAloudHover, true);
+  clearTimeout(raHoverTimeout);
+  lastRaSpoken = '';
+}
+
+// Clean up speech when leaving the game
+document.addEventListener('mouseout', (e) => {
+  if (readAloudMode && !e.relatedTarget) {
+    clearTimeout(raHoverTimeout);
+    audioQueue = [];
+    queueProcessing = false;
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  }
+}, true);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SCREEN RENDERERS
+// ══════════════════════════════════════════════════════════════════════════════
+
+function renderWelcome() {
+  updatePlayerBar();
+  document.getElementById('skipArea').style.display = 'none';
+  const hasExistingSave = hasSave();
+  document.getElementById('cardArea').innerHTML = `
+    <div class="welcome">
+      <h2>Welcome to The Questionarium!</h2>
+      <p class="welcome-sub">A place where there are no wrong answers — only bigger questions.</p>
+      <div class="input-group">
+        <label>What's your name, Wonderer?</label>
+        <input type="text" id="nameInput" placeholder="Type your name..." maxlength="24" value="${escHtml(GS.name)}" autofocus>
+      </div>
+      <label>Choose your guide</label>
+      <div class="avatar-grid">
+        ${AVATARS.map((a,i)=>`
+          <div class="avatar-option${i===GS.avatar?' selected':''}" onclick="selectAvatar(${i})" title="${a.name} — ${a.desc}">
+            ${a.emoji}
+            <span class="avatar-label">${a.name}</span>
+          </div>`).join('')}
+      </div>
+      <button class="btn-primary" id="startBtn" onclick="startAdventure()">Begin Your Adventure ✨</button>
+      ${hasExistingSave ? `
+      <div class="load-save-row" style="margin-top:12px">
+        <button class="btn-secondary" onclick="loadAndContinue()">📂 Continue Journey</button>
+        <button class="btn-secondary" style="border-color:#e03131;color:#e03131" onclick="if(confirm('Delete your saved game?')){deleteSave();renderWelcome();}">🗑️ New Game</button>
+      </div>` : ''}
+    </div>`;
+
+  const input = document.getElementById('nameInput');
+  if (input) {
+    input.addEventListener('input', () => {
+      GS.name = input.value.trim();
+      document.getElementById('startBtn').disabled = !GS.name;
+    });
+    document.getElementById('startBtn').disabled = !GS.name;
+  }
+}
+
+function selectAvatar(index) {
+  GS.avatar = index;
+  document.querySelectorAll('.avatar-option').forEach((el,i) => el.classList.toggle('selected', i===index));
+}
+
+function startAdventure() {
+  const input = document.getElementById('nameInput');
+  if (input) GS.name = input.value.trim();
+  if (!GS.name) return;
+  saveGame();
+  updatePlayerBar();
+  // Track fast answers per session
+  GS.fastAnswers = 0;
+  GS.fastAnswerTimer = Date.now();
+  GS.sessionStart = Date.now();
+  renderRealmMap();
+}
+
+function loadAndContinue() {
+  if (loadGame()) {
+    updatePlayerBar();
+    renderRealmMap();
+  }
+}
+
+function renderRealmMap() {
+  updatePlayerBar();
+  document.getElementById('skipArea').style.display = 'none';
+  const completed = completedRealms();
+  const allComplete = completed.length === REALMS.length;
+
+  if (allComplete) {
+    renderFinal();
+    return;
+  }
+
+  document.getElementById('cardArea').innerHTML = `
+    <div class="realm-map">
+      <h3>🗺️ The Realms of Wonder</h3>
+      <p class="map-sub">Explore philosophical worlds. Complete realms to unlock new ones. ${completed.length}/${REALMS.length} realms completed.</p>
+      <div class="realm-grid">
+        ${REALMS.map(r=>{
+          const done = (GS.realmProgress[r.id]||0) >= realmQuestionCount(r.id);
+          const unlocked = isRealmUnlocked(r);
+          const progress = GS.realmProgress[r.id]||0;
+          const total = realmQuestionCount(r.id);
+          return `
+          <div class="realm-card ${done?'completed':''} ${!unlocked?'locked':''}" onclick="${unlocked?`enterRealm('${r.id}')`:'void(0)'}">
+            <span class="realm-icon">${r.icon}</span>
+            <div class="realm-name">${r.name}</div>
+            <div class="realm-count">${done?'✅ Complete':progress+'/'+total+' questions'}</div>
+            ${done?'<span class="realm-check">✅</span>':''}
+            ${!unlocked?`<span class="realm-lock">🔒</span>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="map-footer">
+        <button class="btn-secondary" onclick="saveGame();showToast('💾 Game saved!','info')">💾 Save</button>
+        <button class="btn-primary" onclick="renderFinal()">🏆 View Progress</button>
+      </div>
+    </div>`;
+}
+
+function enterRealm(realmId) {
+  const realm = realmForId(realmId);
+  GS.currentRealm = realmId;
+  GS.currentQIndex = 0;
+
+  // Get questions not yet answered, or shuffle all
+  const allQ = questionsForRealm(realmId);
+  const answered = GS.totalAnswers;
+  const answeredInRealm = allQ.filter((_, i) => {
+    const globalIdx = SCENARIOS.indexOf(allQ[i]);
+    return globalIdx in answered;
+  });
+
+  // If all answered, reshuffle all for replay; otherwise show unanswered first then answered
+  let unanswered = allQ.filter((_, i) => !(SCENARIOS.indexOf(allQ[i]) in answered));
+  if (unanswered.length === 0) unanswered = shuffle(allQ);
+  else unanswered = shuffle(unanswered);
+
+  GS.activeRealmQuestions = unanswered;
+  GS.currentQIndex = 0;
+
+  renderQuestion();
+}
+
+function renderQuestion() {
+  updatePlayerBar();
+  document.getElementById('skipArea').style.display = 'block';
+  const qi = GS.currentQIndex;
+  const questions = GS.activeRealmQuestions;
+
+  if (!questions || qi >= questions.length) {
+    // Realm complete
+    realmFinished();
+    return;
+  }
+
+  const q = questions[qi];
+  const realm = realmForId(q.realm);
+
+  document.getElementById('cardArea').innerHTML = `
+    <div class="realm-banner">
+      <span class="banner-icon">${realm.icon}</span>
+      ${realm.name} · Question ${qi+1} of ${questions.length}
+    </div>
+    <div class="question-text" onclick="speak('${escHtml(q.question)}')">
+      ${q.question}
+      <div class="speaker-hint">🔊 Click to hear aloud</div>
+    </div>
+    <div class="answers">
+      ${q.answers.map((a,i)=>`
+        <button class="answer-btn" onclick="pickAnswer(${i})">
+          <span class="answer-letter">${a.letter}</span>
+          <span class="answer-text">${a.text}</span>
+          <button class="answer-speaker" onclick="event.stopPropagation();speak('${escHtml(a.text)}')" title="Hear aloud">🔊</button>
+        </button>`).join('')}
+    </div>`;
+}
+
+function pickAnswer(i) {
+  const q = GS.activeRealmQuestions[GS.currentQIndex];
+  const a = q.answers[i];
+  const globalIdx = SCENARIOS.indexOf(q);
+
+  // Track answer
+  GS.totalAnswers[globalIdx] = i;
+  GS.questionsAnswered++;
+  GS.realmProgress[GS.currentRealm] = (GS.realmProgress[GS.currentRealm] || 0) + 1;
+
+  // Track answer style
+  if (a.kind) GS.kindAnswers++;
+  if (a.rebel) GS.rebelAnswers++;
+
+  // Fast answer tracking
+  if (GS.fastAnswerTimer) {
+    const elapsed = Date.now() - GS.fastAnswerTimer;
+    if (elapsed < 15000) GS.fastAnswers++;
+    GS.fastAnswerTimer = Date.now();
+  }
+
+  // Award XP
+  const xpGain = 10 + Math.floor(Math.random() * 6); // 10-15 XP
+  awardXP(xpGain);
+
+  // Check badges
+  const newBadges = checkBadges();
+  for (const b of newBadges) {
+    setTimeout(() => showToast(`${b.icon} Badge earned: ${b.name}!`, 'badge'), 500);
+  }
+
+  updatePlayerBar();
+  document.getElementById('skipArea').style.display = 'none';
+
+  // Speak reaction
+  speak(a.msg);
+  setTimeout(() => speak(a.thought), 4000);
+
+  document.getElementById('cardArea').innerHTML = `
+    <div class="reaction-card">
+      <div class="reaction-emoji">${a.reaction}</div>
+      <div class="reaction-title">${a.title}</div>
+      <div class="reaction-msg" onclick="speak('${escHtml(a.msg)}')">🔊 ${a.msg}</div>
+      <div class="reaction-thought" onclick="speak('${escHtml(a.thought)}')">🔊 💡 ${a.thought}</div>
+      <div class="xp-gain">+${xpGain} XP</div>
+      ${newBadges.length ? newBadges.map(b=>`<div class="badge-unlock">${b.icon} ${b.name} Unlocked!</div>`).join('') : ''}
+      <button class="continue-btn btn-primary" onclick="nextInRealm()">
+        ${GS.currentQIndex + 1 < GS.activeRealmQuestions.length ? 'Next Question →' : 'Complete Realm 🎉'}
+      </button>
+    </div>`;
+}
+
+function nextInRealm() {
+  GS.currentQIndex++;
+  if (GS.currentQIndex >= GS.activeRealmQuestions.length) {
+    realmFinished();
+  } else {
+    renderQuestion();
+  }
+}
+
+function skipQuestion() {
+  GS.currentQIndex++;
+  if (GS.currentQIndex >= GS.activeRealmQuestions.length) {
+    realmFinished();
+  } else {
+    renderQuestion();
+  }
+}
+
+function realmFinished() {
+  const realm = realmForId(GS.currentRealm);
+  const completed = (GS.realmProgress[GS.currentRealm] || 0);
+  const total = realmQuestionCount(GS.currentRealm);
+  const newBadges = checkBadges();
+
+  for (const b of newBadges) {
+    setTimeout(() => showToast(`${b.icon} Badge earned: ${b.name}!`, 'badge'), 500);
+  }
+  updatePlayerBar();
+  saveGame();
+  document.getElementById('skipArea').style.display = 'none';
+
+  // Confetti for realm completion
+  if (completed >= total) confetti();
+
+  document.getElementById('cardArea').innerHTML = `
+    <div class="realm-complete">
+      <div class="rc-icon">${realm.icon}</div>
+      <h3>${completed >= total ? 'Realm Complete!' : 'Realm Progress'}</h3>
+      <div class="rc-stats">${completed}/${total} questions explored in ${realm.name}</div>
+      ${newBadges.length ? newBadges.map(b=>`<div class="badge-unlock">${b.icon} ${b.name} Unlocked!</div>`).join('') : ''}
+      ${completed >= total ? '<p style="color:#51cf66;font-weight:700;margin:8px 0">🌟 All questions in this realm explored!</p>' : ''}
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        ${completed < total ? `<button class="btn-primary" onclick="enterRealm('${GS.currentRealm}')">Continue ${realm.name} →</button>` : ''}
+        <button class="btn-secondary" onclick="renderRealmMap()">🗺️ Realm Map</button>
+      </div>
+    </div>`;
+}
+
+function renderFinal() {
+  updatePlayerBar();
+  document.getElementById('skipArea').style.display = 'none';
+  const completed = completedRealms();
+  const allComplete = completed.length === REALMS.length;
+  const lvl = currentLevel();
+  const msgs = [
+    "You did something most grown-ups forget how to do. You asked questions — not to find the one right answer, but to explore what's possible. Keep doing that forever.",
+    "Every great scientist, every great artist, every great human started exactly where you are right now: wondering. Never stop.",
+    "The most powerful sentence in the world isn't 'I know.' It's 'I wonder.' And you just proved you're a wonder champion.",
+    "You traveled through realms of fairness, reality, happiness, and more — and came back with something more valuable than answers: better questions.",
+  ];
+
+  document.getElementById('cardArea').innerHTML = `
+    <div class="final-card">
+      <div class="final-emoji">${AVATARS[GS.avatar].emoji}</div>
+      <div class="final-title">${allComplete ? "You're a Wonder Champion!" : "Your Journey So Far"}</div>
+      <div class="final-msg">${msgs[Math.floor(Math.random()*msgs.length)]}</div>
+      <div class="final-stats">
+        <div class="final-stat"><div class="final-stat-val">${GS.questionsAnswered}</div><div class="final-stat-label">Questions</div></div>
+        <div class="final-stat"><div class="final-stat-val">${GS.xp}</div><div class="final-stat-label">Total XP</div></div>
+        <div class="final-stat"><div class="final-stat-val">Lv.${lvl.level}</div><div class="final-stat-label">${lvl.name}</div></div>
+        <div class="final-stat"><div class="final-stat-val">${completed.length}/${REALMS.length}</div><div class="final-stat-label">Realms</div></div>
+      </div>
+      <h4 style="font-size:14px;color:#212529;margin-bottom:12px">🏅 Badges (${GS.earnedBadges.length}/${BADGES.length})</h4>
+      <div class="badge-gallery">
+        ${BADGES.map(b=>{
+          const earned = GS.earnedBadges.includes(b.id);
+          return `<div class="badge-chip ${earned?'earned':'locked'}" title="${b.desc}">${b.icon} ${b.name}</div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        ${!allComplete ? `<button class="btn-primary" onclick="renderRealmMap()">🗺️ Continue Exploring</button>` : ''}
+        <button class="btn-secondary" onclick="renderRealmMap()">🗺️ Realm Map</button>
+        <button class="btn-primary" style="background:linear-gradient(135deg,#f093fb,#f5576c)" onclick="if(confirm('Start a completely new game? Your current save will be lost.')){deleteSave();resetGS();renderWelcome();}">🔄 New Game</button>
+      </div>
+    </div>`;
+
+  if (allComplete) confetti();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════════════════════════════════
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════════════
+
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+// Detect edge-tts server, then boot the game
+detectTTSServer().then(found => {
+  if (found) {
+    // Update the toggle label to show Andrew voice
+    const toggle = document.getElementById('raToggle');
+    if (toggle) {
+      toggle.title = 'Read-aloud mode: Andrew voice reads buttons on hover';
+    }
+  }
+
+  if (hasSave()) {
+    loadGame();
+    updatePlayerBar();
+    renderRealmMap();
+  } else {
+    resetGS();
+    renderWelcome();
+  }
+});
+</script>
+</body>
+</html>
